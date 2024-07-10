@@ -1,0 +1,183 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <limits>
+#include <sstream>
+#include <locale>
+#include <algorithm> // For std::remove
+
+using namespace std;
+
+struct Barang {
+    int id;
+    string nama;
+    string harga;
+
+    double getDoubleHarga() const {
+        string temp = harga;
+        temp.erase(remove(temp.begin(), temp.end(), ','), temp.end()); // Menghapus karakter ',' dari harga
+        return std::stod(temp); // Mengonversi harga ke double
+    }
+
+    void setHarga(double newHarga) {
+        stringstream ss;
+        ss.imbue(locale("")); // Menerapkan imbue locale yang mungkin diperlukan untuk format harga
+        ss << fixed << newHarga; // Menetapkan harga baru dengan presisi tetap
+        harga = ss.str(); // Menyimpan harga sebagai string
+    }
+};
+
+void tampilkanMenu() {
+    cout << "\nMenu:" << endl;
+    cout << "1. Tambah Data Handphone" << endl; // Opsi untuk menambah data handphone
+    cout << "2. Lihat Data Handphone" << endl; // Opsi untuk melihat data handphone
+    cout << "3. Perbarui Data Handphone" << endl; // Opsi untuk memperbarui data handphone
+    cout << "4. Hapus Data Handphone" << endl; // Opsi untuk menghapus data handphone
+    cout << "5. Keluar" << endl; // Opsi untuk keluar dari program
+    cout << "Pilih opsi: ";
+}
+
+void buatData(vector<Barang>& barang) {
+    Barang barangBaru;
+    cout << "Masukkan ID handphone: ";
+    while (!(cin >> barangBaru.id)) { // Validasi input ID handphone
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cout << "Input tidak valid. Masukkan ID handphone yang valid: ";
+    }
+    cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Mengabaikan karakter newline yang tersisa
+
+    cout << "Masukkan merek dan model handphone: ";
+    getline(cin, barangBaru.nama); // Memasukkan merek dan model handphone
+
+    cout << "Masukkan harga handphone (Rp.): ";
+    getline(cin, barangBaru.harga); // Memasukkan harga handphone
+
+    barang.push_back(barangBaru); // Memasukkan data handphone baru ke dalam vector
+    cout << "Data handphone berhasil ditambahkan!" << endl;
+}
+
+void bacaData(const vector<Barang>& barang) {
+    if (barang.empty()) {
+        cout << "Tidak ada data handphone yang ditemukan." << endl;
+        return;
+    }
+    for (const auto& b : barang) {
+        cout << "ID: " << b.id << ", Nama: " << b.nama << ", Harga: Rp. " << b.harga << endl; // Menampilkan ID, nama, dan harga handphone
+    }
+}
+
+void perbaruiData(vector<Barang>& barang) {
+    int id;
+    cout << "Masukkan ID handphone yang akan diperbarui: ";
+    while (!(cin >> id)) { // Validasi input ID handphone yang akan diperbarui
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cout << "Input tidak valid. Masukkan ID handphone yang valid: ";
+    }
+    cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Mengabaikan karakter newline yang tersisa
+
+    for (auto& b : barang) {
+        if (b.id == id) {
+            cout << "Masukkan merek dan model handphone baru: ";
+            getline(cin, b.nama); // Memasukkan merek dan model handphone baru
+
+            cout << "Masukkan harga handphone baru (Rp.): ";
+            getline(cin, b.harga); // Memasukkan harga handphone baru
+
+            cout << "Data handphone berhasil diperbarui!" << endl;
+            return;
+        }
+    }
+    cout << "Handphone tidak ditemukan." << endl;
+}
+
+void hapusData(vector<Barang>& barang) {
+    int id;
+    cout << "Masukkan ID handphone yang akan dihapus: ";
+    while (!(cin >> id)) { // Validasi input ID handphone yang akan dihapus
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cout << "Input tidak valid. Masukkan ID handphone yang valid: ";
+    }
+
+    for (auto it = barang.begin(); it != barang.end(); ++it) {
+        if (it->id == id) {
+            barang.erase(it); // Menghapus data handphone dari vector
+            cout << "Data handphone berhasil dihapus!" << endl;
+            return;
+        }
+    }
+    cout << "Handphone tidak ditemukan." << endl;
+}
+
+void registrasi(string& idLogin, string& pwLogin) {
+    cout << endl;
+    cout << "Registrasi Pengguna Baru" << endl;
+    cout << "Masukkan ID login baru: ";
+    cin >> idLogin; // Memasukkan ID login baru
+    cout << "Masukkan kata sandi baru: ";
+    cin >> pwLogin; // Memasukkan kata sandi baru
+    cout << "Registrasi berhasil!" << endl;
+}
+
+bool login(const string& idLogin, const string& pwLogin) {
+    string inputId, inputPw;
+    cout << "Masukkan ID login: ";
+    cin >> inputId; // Memasukkan ID login yang ada
+    cout << "Masukkan kata sandi: ";
+    cin >> inputPw; // Memasukkan kata sandi yang ada
+    return (inputId == idLogin && inputPw == pwLogin); // Memeriksa kredensial login
+}
+
+int main() {
+    string idLogin, pwLogin;
+    vector<Barang> barang;
+    
+    cout << "========================================" << endl;
+
+    cout << "   Selamat datang di Toko Handphone!" << endl;
+    cout << " Silakan registrasi untuk melanjutkan" << endl;
+    
+    cout << "=============||=========||==============" << endl;
+
+    registrasi(idLogin, pwLogin); // Registrasi pengguna baru
+
+    if (!login(idLogin, pwLogin)) { // Memeriksa kredensial login
+        cout << "Kredensial login tidak valid. Keluar..." << endl;
+        return 1;
+    }
+
+    int opsi;
+    do {
+        tampilkanMenu(); // Menampilkan menu utama
+        while (!(cin >> opsi)) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Input tidak valid. Pilih opsi yang valid: ";
+        }
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+        switch (opsi) {
+            case 1:
+                buatData(barang); // Memanggil fungsi untuk menambah data handphone
+                break;
+            case 2:
+                bacaData(barang); // Memanggil fungsi untuk melihat data handphone
+                break;
+            case 3:
+                perbaruiData(barang); // Memanggil fungsi untuk memperbarui data handphone
+                break;
+            case 4:
+                hapusData(barang); // Memanggil fungsi untuk menghapus data handphone
+                break;
+            case 5:
+                cout << "Keluar..." << endl; // Keluar dari program
+                break;
+            default:
+                cout << "Opsi tidak valid. Silakan coba lagi." << endl;
+        }
+    } while (opsi != 5);
+
+    return 0;
+}
